@@ -1,0 +1,105 @@
+<nav class="shadow d-flex h-100 cart col-3 flex-column justify-content-between
+    border bg-dark">
+    <div class="menu-title d-flex justify-content-between col-12 bg-light border
+        shadow
+        p-3">
+        <h5>
+            <i class="material-icons">
+                shopping_cart
+            </i>
+        </h5>
+        <div *ngIf="productosEnCarrito.listaCarrito.length> 0 else disableBtn">
+            <button class="btn btn-dark btn-sm" (click)="irACheckout()"
+                [disabled]="productosEnCarrito.listaCarrito.length === 0">
+                Ir al checkout
+            </button>
+        </div>
+        <ng-template #disableBtn>
+            Carrito Vacío
+        </ng-template>
+    </div>
+    <div class="menu-top d-flex">
+        <ng-container *ngIf="productosEnCarrito; else emptyCart">
+            <ul>
+                <li class="shadow list-group-item bg-light p-0"
+                    *ngFor="let producto of
+                    productosEnCarrito.listaCarrito">
+                    <div class="d-flex">
+                        <div class="col-3 p-0">
+                            <img src="assets/img/{{producto.nombre | lowercase
+                                }}.jpg"
+                                alt="{{producto.nombre}}">
+                            <div class="badge badge-dark col-12 text-center">
+                                {{producto.tipo}}</div>
+                            <div class="d-flex">
+                                <button class="btn btn-outline-dark"
+                                    (click)="modificarItemCarrito(producto,
+                                    'restar')" class="mt-2 mr-2 btn btn-block
+                                    btn-outline-dark btn-light">-</button>
+                                <button [disabled]="producto.stock <1"
+                                    (click)="modificarItemCarrito(producto,
+                                    'sumar')" class="btn btn-block
+                                    btn-outline-dark btn-light">+</button>
+                            </div>
+                        </div>
+                        <div class="col-9 flex-column p-3">
+                            <button class="btn btn-small delete"
+                                (click)="eliminarProductoDelCarrito(producto)">
+                                <span class="badge badge-danger">x</span>
+                            </button>
+                            <h5>{{producto.nombre }}</h5>
+                            <div class="d-flex justify-content-around
+                                text-center border-bottom">
+                                <p class="small">
+                                    <span><b>Peso:</b></span>
+                                    <span>
+                                        {{ producto.peso > 1000 ? (producto.peso
+                                        /
+                                        1000
+                                        | number) + 'Kg':
+                                        (producto.peso | number) + 'g' }}
+                                    </span>
+                                </p>
+                                <p class="small">
+                                    <span><b>Cantidad:</b></span>
+                                    <span>{{producto.cantidad}}</span>
+                                </p>
+                                <p class="small">
+                                    <span><b>Precio:</b></span>
+                                    <span>
+                                        {{ producto.precio | currency:'EUR' }}
+                                    </span>
+
+                                </p>
+                            </div>
+                            <p class="small text-center">
+                                <span><b>SubTotal:</b></span>
+                                <span>
+                                    {{producto.itemTotal | currency:'EUR'}}
+                                </span>
+                            </p>
+                        </div>
+                    </div>
+                </li>
+            </ul>
+        </ng-container>
+        <ng-template #emptyCart>
+            <p>Carrito Vacío</p>
+        </ng-template>
+    </div>
+    <div class="menu-bottom">
+        <div class="list-group-item list-group-item-action bg-light">
+            <b>Items:</b> {{productosEnCarrito.contador}}
+        </div>
+        <div class="list-group-item list-group-item-action bg-light">
+            <b>Total Items:</b> {{productosEnCarrito.contadorTotal}}
+        </div>
+        <div class="list-group-item list-group-item-action bg-light">
+            <b>Total a pagar:</b> {{productosEnCarrito.totalCarrito | currency:
+            'EUR' }}
+        </div>
+        <!-- <div class="small">
+            <button class="btn btn-block btn-danger" (click)="logout()">Logout</button>
+        </div> -->
+    </div>
+</nav>

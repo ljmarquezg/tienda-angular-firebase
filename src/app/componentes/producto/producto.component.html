@@ -1,0 +1,51 @@
+<ng-container *ngIf="listaProductos; else emptyList">
+  <div  *ngFor="let producto of listaProductos" class="nav col-xl-3 col-lg-4 col-md-6 col-sm-12 mb-3 mt-3">
+  <mat-card>
+    <mat-card-header>
+      <!-- <div mat-card-avatar class="example-header-image"></div> -->
+      <mat-card-title>
+        <img mat-card-image src="assets/img/{{producto.nombre | lowercase
+          }}.jpg" alt="{{producto.nombre}}">
+        {{producto.nombre }}
+      </mat-card-title>
+      <mat-card-subtitle>
+        <mat-chip-list aria-label="tipo">
+          <mat-chip color="primary" selected>{{producto.tipo}}</mat-chip>
+        </mat-chip-list>
+      </mat-card-subtitle>
+    </mat-card-header>
+    <mat-card-content>
+      <div class="card-text">
+        <p><b>Peso Unitario:</b> {{producto.peso}}g</p>
+        <p><b>Precio:</b> {{ producto.precio | currency:'EUR'}}</p>
+        <p><b>Precio Kilo:</b> {{producto.precioK | currency:'EUR'}} / Kg</p>
+        <p><b>Stock Disponible:</b> {{producto.stock}} U</p>
+      </div>
+    </mat-card-content>
+    <mat-card-actions>
+      <button mat-raised-button color="primary" [disabled]="producto.stock <1"
+        (click)="enviarAListaCarrito(producto)">Agregar</button>
+    </mat-card-actions>
+  </mat-card>
+</div>
+  <!-- <div class="card">
+        <img src="assets/img/{{producto.nombre | lowercase }}.jpg"
+          class="card-img-top" alt="{{producto.nombre}}">
+        <span class="badge badge-dark">{{producto.tipo}}</span>
+        <div class="card-body">
+          <h5 class="card-title">{{producto.nombre }}</h5>
+          <div class="card-text">
+            <p><b>Peso Unitario:</b> {{producto.peso}}g</p>
+            <p><b>Precio:</b> {{ producto.precio | currency:'EUR'}}</p>
+            <p><b>Precio Kilo:</b> {{producto.precioK | currency:'EUR'}} / Kg</p>
+            <p><b>Stock Disponible:</b> {{producto.stock}} U</p>
+          </div>
+          <button [disabled]="producto.stock <1"
+            (click)="enviarAListaCarrito(producto)" class="btn btn-block
+            btn-primary">Agregar</button>
+        </div>
+      </div> -->
+</ng-container>
+<ng-template #emptyList>
+  <h2>No se han encontrado productos</h2>
+</ng-template>

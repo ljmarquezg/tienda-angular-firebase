@@ -1,0 +1,96 @@
+<app-navigation></app-navigation>
+<ng-container *ngIf="productosEnCarrito.listaCarrito.length> 0; else emptyCart">
+    <ul>
+        <li class="shadow list-group-item bg-light p-0"
+            *ngFor="let producto of
+            productosEnCarrito.listaCarrito">
+            <div class="d-flex">
+                <div class="p-0" style="max-width: 150px;">
+                    <img style="max-width: 150px;" src="assets/img/{{producto.nombre
+                        | lowercase
+                        }}.jpg"
+                        alt="{{producto.nombre}}">
+                    <div class="badge badge-dark col-12 text-center">
+                        {{producto.tipo}}</div>
+                    <div class="d-flex">
+                        <button class="btn btn-outline-dark"
+                            (click)="modificarItemCarrito(producto,
+                            'restar')" class="mt-2 mr-2 btn btn-block
+                            btn-outline-dark btn-light">-</button>
+                        <button [disabled]="producto.stock <1"
+                            (click)="modificarItemCarrito(producto,
+                            'sumar')" class="btn btn-block
+                            btn-outline-dark btn-light">+</button>
+                    </div>
+                </div>
+                <div class="flex-column p-3">
+                    <button class="btn btn-small delete"
+                        (click)="eliminarProductoDelCarrito(producto)">
+                        <span class="badge badge-danger">x</span>
+                    </button>
+                    <h5>{{producto.nombre }}</h5>
+                    <div class="d-flex justify-content-around
+                        text-center border-bottom">
+                        <p class="small">
+                            <span><b>Peso:</b></span>
+                            <span>
+                                {{ producto.peso > 1000 ? (producto.peso
+                                /
+                                1000
+                                | number) + 'Kg':
+                                (producto.peso | number) + 'g' }}
+                            </span>
+                        </p>
+                        <p class="small">
+                            <span><b>Cantidad:</b></span>
+                            <span>{{producto.cantidad}}</span>
+                        </p>
+                        <p class="small">
+                            <span><b>Precio:</b></span>
+                            <span>
+                                {{ producto.precio | currency:'EUR' }}
+                            </span>
+                        </p>
+                        <p class="small text-center">
+                            <span><b>SubTotal:</b></span>
+                            <span>
+                                {{producto.itemTotal | currency:'EUR'}}
+                            </span>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </li>
+    </ul>
+    <div class="col-12">
+        <div class="list-group-item list-group-item-action bg-light">
+            <b>Items:</b> {{productosEnCarrito.contador}}
+        </div>
+        <div class="list-group-item list-group-item-action bg-light">
+            <b>Total Items:</b> {{productosEnCarrito.contadorTotal}}
+        </div>
+        <div class="list-group-item list-group-item-action bg-light">
+            <b>Total a pagar:</b> {{productosEnCarrito.totalCarrito | currency:
+            'EUR' }}
+        </div>
+    </div>
+</ng-container>
+
+<ng-template #emptyCart>
+    <div class="text-center m-5">
+        <h2>El Carrito está vacío</h2>
+        <p><a class="btn btn-dark" routerLink="/shop">Ir a Tienda</a></p>
+    </div>
+    <div class="col-12">
+        <div class="list-group-item list-group-item-action bg-light">
+            <b>Items:</b> 0
+        </div>
+        <div class="list-group-item list-group-item-action bg-light">
+            <b>Total Items:</b> 0
+        </div>
+        <div class="list-group-item list-group-item-action bg-light">
+            <b>Total a pagar:</b> {{0 | currency:
+            'EUR' }}
+        </div>
+    </div>
+</ng-template>

@@ -1,0 +1,43 @@
+img{
+    width: 100%;
+    object-fit: cover;
+    justify-content: center;
+    align-content: center
+}
+.cart {
+    padding:0;
+    margin: 0;
+    position:fixed;
+    top: 0;
+    bottom: 0;
+    left:0;
+}
+
+.cart ul{
+    margin: 0;
+    padding: 0;
+}
+
+.cart ul li {
+    width: 100%;
+}
+.cart ul li p.small{
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 5px;
+}
+
+.cart ul li button.delete{
+    position: absolute;
+    top: 0;
+    right: 10px;
+    padding: 0;
+}
+.menu-title{
+    flex: 0;
+}
+
+.menu-top{
+    flex: auto;
+    overflow: auto;
+}

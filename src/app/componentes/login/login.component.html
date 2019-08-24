@@ -1,0 +1,67 @@
+<div class="background">
+    <div class="simple-login-container">
+        <form [formGroup]="loginForm" class="mt-5" (ngSubmit)="submitForm()">
+            <div class="row">
+                <div class="col-md-12 form-group">
+                    <h2>
+                        <i class="material-icons">
+                            shopping_cart
+                        </i>
+                    </h2>
+                    <h2>Inicia sesiónen tu tienda</h2>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-12 form-group">
+                    <mat-form-field>
+                        <input matInput placeholder="username"
+                            formControlName="username" />
+                    </mat-form-field>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-12 form-group">
+                    <mat-form-field>
+                        <input matInput type="password" placeholder="password"
+                            formControlName="password" />
+                    </mat-form-field>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-12 form-group">
+                    <button type="submit" class="btn btn-block btn-dark"
+                        [disabled]="loginForm.invalid">Enviar</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+
+<!-- <h2>Firebase auth</h2>
+<div class="container pt-3">
+    <div class="row justify-content-sm-center">
+        <div class="col-sm-10 col-md-6">
+            <div class="card border-info">
+                <div class="card-header">Login</div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-4 text-center">
+                            <img src="https://placeimg.com/128/128/nature">
+                        </div>
+                        <div class="col-md-8">
+
+                            <input type="text" class="form-control mb-2"
+                                placeholder="Email" #userEmail required
+                                autofocus>
+                            <input type="password" class="form-control mb-2"
+                                placeholder="Password" #userPassword required>
+                            <button class="btn btn-lg btn-primary btn-block
+                                mb-1">Login</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div> -->
