@@ -30,6 +30,7 @@ import {MatGridListModule} from '@angular/material/grid-list';
 // Angular Firebase
 import { AngularFireModule } from '@angular/fire';
 import { AngularFirestoreModule } from '@angular/fire/firestore';
+import { AngularFireAuthModule } from '@angular/fire/auth';
 // Angular Firebase Config file
 import { enviroment } from './enviroment/enviroment';
 // App components
@@ -40,6 +41,8 @@ import { CarritoComponent } from './componentes/carrito/carrito.component';
 import { LoginComponent } from './componentes/login/login.component';
 import { CheckoutComponent } from './componentes/checkout/checkout.component';
 import { NavigationComponent } from './componentes/navigation/navigation.component';
+import { AuthService } from './services/auth/auth.service';
+import { SpinnerComponent } from './componentes/common/spinner/spinner.component';
 
 @NgModule({
   declarations: [
@@ -50,6 +53,7 @@ import { NavigationComponent } from './componentes/navigation/navigation.compone
     LoginComponent,
     CheckoutComponent,
     NavigationComponent,
+    SpinnerComponent,
   ],
   imports: [
     BrowserModule,
@@ -65,8 +69,9 @@ import { NavigationComponent } from './componentes/navigation/navigation.compone
     MatProgressSpinnerModule,
     AngularFireModule.initializeApp(enviroment.firebase),
     AngularFirestoreModule,
+    AngularFireAuthModule
   ],
-  providers: [],
+  providers: [AuthService],
   bootstrap: [AppComponent]
 })
 export class AppModule { }
