@@ -1,7 +1,7 @@
 import { Component, OnInit, Output, EventEmitter } from '@angular/core';
 import { Producto } from 'src/app/modelos/Producto';
-import { Tipo } from 'src/app/modelos/Tipo';
-import { CartService } from 'src/app/services/cart/cart.service';
+import { ProductoService } from 'src/app/services/producto/producto.service';
+import { Observable } from 'rxjs';
 
 
 @Component({
@@ -15,21 +15,23 @@ export class ProductoComponent implements OnInit {
 
   loading: boolean;
   disableAddToCart: boolean = false;
-
   listaProductos: Producto[] = [];
 
-  constructor(private cartService: CartService) {
+  constructor(private productoService: ProductoService) {
   }
 
   ngOnInit() {
-    this.loading = true;
-    const listaProducto = this.cartService.obtenerProuctos();
-    listaProducto.subscribe(productos => {
-      this.listaProductos = productos;
-      this.loading = false;
-    });
+    console.log('openingProducts');
+    this.getProducts();
   }
 
+  getProducts(): Producto[]{
+    const listaProducto = this.productoService.obtenerProductos();
+    listaProducto.subscribe(productos => {
+      this.listaProductos = productos;
+    });
+    return this.listaProductos;
+  }
   enviarAListaCarrito(producto: Producto): void {
     this.enviarACarritoEmit.emit(producto);
   }
