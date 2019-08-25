@@ -2,24 +2,33 @@ import { Injectable } from '@angular/core';
 import { Observable, of } from 'rxjs';
 import { Router } from '@angular/router';
 import { AngularFireAuth } from '@angular/fire/auth';
-import { auth } from 'firebase/app';
 import { User } from 'firebase';
+import * as firebase from 'firebase/app';
+import { auth } from 'firebase/app';
+
 
 @Injectable({
   providedIn: 'root'
 })
 export class AuthService {
 
-  user: User;
-  constructor(/*public afAuth: AngularFireAuth,*/ private router: Router) {
-    // this.afAuth.authState.subscribe(user => {
-    //   if (user) {
-    //     this.user = user;
-    //     localStorage.setItem('user', JSON.stringify(this.user));
-    //   } else {
-    //     localStorage.setItem('user', null);
-    //   }
-    // })
+  //user: User;
+  //private user: Observable<firebase.User>;
+  private user: Observable<firebase.User>;
+  private userDetails: firebase.User = null;
+
+  constructor(public afAuth: AngularFireAuth, private router: Router) {
+    this.user = afAuth.authState;
+
+    this.user.subscribe(user => {
+      if (user) {
+        this.userDetails = user;
+        localStorage.setItem('user', JSON.stringify(this.user));
+      } else {
+        this.userDetails = null;
+        localStorage.removeItem('user');
+      }
+    });
   }
 
   validateForm(username: string, password: string): Observable<boolean> {
@@ -35,19 +44,26 @@ export class AuthService {
   }
 
   logout() {
-    sessionStorage.removeItem('auth');
-    sessionStorage.removeItem('username');
-    this.router.navigate(['home']);
+    this.afAuth.auth.signOut()
+      .then((res) => {
+        localStorage.removeItem('user');
+        this.router.navigate(['/']);
+      });
   }
 
-  login(email: string, password: string) {
-    //   console.log(email, password);
-    //   try {
-    //     await this.afAuth.auth.signInWithEmailAndPassword(email, password);
-    //     this.router.navigate(['shop']);
-    //   } catch (e) {
-    //     alert("Error!" + e.message);
-    //   }
+  async login(email: string, password: string) {
+    try {
+      await this.afAuth.auth.signInWithEmailAndPassword(email, password);
+      console.log('Loged in', this.afAuth.auth.signInWithEmailAndPassword(email, password));
+      this.router.navigate(['shop']);
+    } catch (e) {
+      alert("Error!" + e.message);
+    }
+  }
+
+  get isLoggedIn(): boolean {
+    const user = JSON.parse(localStorage.getItem('user'));
+    return user !== null;
   }
 
   // logout() {
@@ -61,10 +77,8 @@ export class AuthService {
   //   return user !== null;
   // }
 
-  getUser(): boolean {
-    if (sessionStorage.auth) {
-      return true;
-    }
-    return false;
+  getUserDetails(): firebase.User {
+    return this.userDetails;
   }
+
 }
