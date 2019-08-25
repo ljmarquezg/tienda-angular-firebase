@@ -77,7 +77,7 @@ export class AuthService {
   //   return user !== null;
   // }
 
-  getUserDetails(): firebase.User {
+  getUser(): firebase.User {
     return this.userDetails;
   }
 
