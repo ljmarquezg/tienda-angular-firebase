@@ -1,13 +1,10 @@
 import { Item } from 'src/app/modelos/Items';
 
-export class Carrito {
-
-    listaCarrito: Item[] = [];
+export interface Carrito {
+    id: any;
+    listaCarrito: Item[];
     contador: number;
     contadorTotal: number;
     totalCarrito: number;
-
-    constructor() {
-
-    }
+    status: string;
 }
