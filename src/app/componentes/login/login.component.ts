@@ -18,9 +18,10 @@ export class LoginComponent implements OnInit {
   constructor(private formBuilderService: FormBuilder, private authService: AuthService, private router: Router) { }
 
   ngOnInit() {
-   /* if (this.authService.getUser()) {
+    if (this.authService.isLoggedIn) {
       this.router.navigate(['shop']);
-    }}*/
+    }
+      
     this.loginForm = this.formBuilderService.group({
       username: ['', Validators.required],
       password: ['', Validators.required]
@@ -28,11 +29,7 @@ export class LoginComponent implements OnInit {
   }
 
   submitForm() {
-    const success = this.authService.validateForm(this.loginForm.value.username, this.loginForm.value.password);
-    if (success) {
-      console.log(success);
-      this.router.navigate(['shop']);
-    }
+    this.authService.login(this.loginForm.value.username, this.loginForm.value.password);
   }
 
 }
