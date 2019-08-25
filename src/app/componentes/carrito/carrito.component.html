@@ -8,9 +8,10 @@
                 shopping_cart
             </i>
         </h5>
-        <div *ngIf="productosEnCarrito.listaCarrito.length> 0 else disableBtn">
+        <div *ngIf="carrito !== undefined && carrito.listaCarrito !== undefined;
+            else disableBtn">
             <button class="btn btn-dark btn-sm" (click)="irACheckout()"
-                [disabled]="productosEnCarrito.listaCarrito.length === 0">
+                [disabled]="carrito.listaCarrito.length === 0">
                 Ir al checkout
             </button>
         </div>
@@ -19,11 +20,12 @@
         </ng-template>
     </div>
     <div class="menu-top d-flex">
-        <ng-container *ngIf="productosEnCarrito; else emptyCart">
+        <ng-container *ngIf="carrito !== undefined && carrito.listaCarrito !==
+            undefined; else emptyCart">
             <ul>
                 <li class="shadow list-group-item bg-light p-0"
                     *ngFor="let producto of
-                    productosEnCarrito.listaCarrito">
+                    carrito.listaCarrito">
                     <div class="d-flex">
                         <div class="col-3 p-0">
                             <img src="assets/img/{{producto.nombre | lowercase
@@ -89,13 +91,13 @@
     </div>
     <div class="menu-bottom">
         <div class="list-group-item list-group-item-action bg-light">
-            <b>Items:</b> {{productosEnCarrito.contador}}
+            <b>Items:</b> {{contador}}
         </div>
         <div class="list-group-item list-group-item-action bg-light">
-            <b>Total Items:</b> {{productosEnCarrito.contadorTotal}}
+            <b>Total Items:</b> {{contadorTotal}}
         </div>
         <div class="list-group-item list-group-item-action bg-light">
-            <b>Total a pagar:</b> {{productosEnCarrito.totalCarrito | currency:
+            <b>Total a pagar:</b> {{totalCarrito | currency:
             'EUR' }}
         </div>
         <!-- <div class="small">

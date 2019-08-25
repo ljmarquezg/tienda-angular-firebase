@@ -1,77 +1,106 @@
 import { Injectable } from '@angular/core';
+import { AngularFirestoreCollection, AngularFirestore } from '@angular/fire/firestore';
+import { Observable, of } from 'rxjs';
+import { map } from 'rxjs/operators';
+import { AuthService } from '../auth/auth.service';
 import { Producto } from 'src/app/modelos/Producto';
 import { Carrito } from 'src/app/modelos/Carrito';
 import { Item } from 'src/app/modelos/Items';
-import { Observable, of } from 'rxjs';
-import { Tipo } from 'src/app/modelos/tipo';
-import { nextTick } from 'q';
+import { Router } from '@angular/router';
+
 
 @Injectable({
     providedIn: 'root'
 })
 export class CartService {
+    
+    private cartCollection: AngularFirestoreCollection<Carrito>;
+    private cart: Observable<Carrito[]>;
+    private cartId: any;
+    private actualCart: Carrito;
+
+
     // Productos
     listaProductos: Producto[] = [];
     // Carrito
-    productosEnCarrito: Carrito = new Carrito();
+    productosEnCarrito: Carrito;
     listaItemsCarrito: Item[] = [];
+    newCart: Carrito = {
+        id: '',
+        listaCarrito: [],
+        contador: 0,
+        contadorTotal: 0,
+        totalCarrito: 0,
+        status: 'active'
+    }
 
-    constructor() { }
+    constructor(private db: AngularFirestore, private authService: AuthService, private router: Router) {
+        if (this.authService.isLoggedIn) {
+            this.router.navigate(['/']);
+        }
+        this.cartCollection = this.db.collection<Carrito>('carrito');
+        this.cart = this.cartCollection.snapshotChanges().pipe(
+            map(items => {
+                return items.map(val => {
+                    const data = val.payload.doc.data();
+                    const id = val.payload.doc.id;
+                    if (val.payload.doc.data().id === this.authService.getUser().uid) {
+                        this.cartId = id;
+                        this.actualCart = data;
+                        this.actualCart.id = this.authService.getUser().uid;
+                    }
+                    if (!this.actualCart) {
+                        this.createCart();
+                    }
+                    this.recalcularTotales();
+                    return { id, ...data };
+                });
+            })
+        );
+    }
 
+    createCart() {
+        if (this.actualCart === undefined || this.actualCart.status !== 'active') {
+            this.newCart.id = this.authService.getUser().uid;
+            this.cartCollection.add(this.newCart);
+            console.log('carrito creado:', this.cart);
+        }
+    }
     inicializarContador(): Carrito {
-        this.productosEnCarrito.contador = 0;
-        this.productosEnCarrito.contadorTotal = 0;
-        this.productosEnCarrito.totalCarrito = 0;
-        return this.productosEnCarrito;
-    }
-    generarProductos() {
-        this.listaProductos.push(new Producto(0, 'Aguacate', 250, Tipo.Fruta, 3, 100));
-        this.listaProductos.push(new Producto(1, 'Manzana', 35, Tipo.Fruta, 2, 300));
-        this.listaProductos.push(new Producto(2, 'Zanahoria', 120, Tipo.Verdura, 1, 1000));
-        this.listaProductos.push(new Producto(3, 'Pimenton', 80, Tipo.Verdura, 3.5, 250));
-        this.listaProductos.push(new Producto(4, 'Sandia', 180, Tipo.Fruta, 5, 80));
-        this.listaProductos.push(new Producto(5, 'Banana', 100, Tipo.Fruta, 2.5, 400));
-        this.listaProductos.push(new Producto(6, 'Cebolla', 80, Tipo.Verdura, 1.25, 120));
-        this.listaProductos.push(new Producto(7, 'Boniato', 80, Tipo.Verdura, 4, 500));
+        this.actualCart.contador = 0;
+        this.actualCart.contadorTotal = 0;
+        this.actualCart.totalCarrito = 0;
+        return this.actualCart;
     }
 
-    obtenerProuctos(): Observable<Producto[]> {
-        const observable = Observable.create(observer => {
-            if (this.listaProductos.length === 0) {
-                this.generarProductos();
-            }
-            observer.next(this.listaProductos);
-            observer.complete();
-        });
-        console.log('Observable', observable);
-        return observable;
+    getCartId(): any {
+        return this.cartId;
     }
 
-    getListaCarrito(): Observable<Carrito> {
-        const observable = Observable.create(observer => {
-            observer.next(this.productosEnCarrito);
-            observer.complete();
-        })
-        return observable;
+    getCartList(): Observable<Carrito[]> {
+        return this.cart;
     }
 
     redondear(valor: number): number {
         return Math.ceil(valor * 100) / 100;
-    };
+    }
 
     createNewProduct(item: Producto) {
         const nuevoProducto = new Item(item.id, item.nombre,
             item.peso, item.tipo, Number(item.precio), (item.stock - 1), item.peso, 1, item.precio, 1);
         item.stock -= 1;
-        this.listaItemsCarrito.push(nuevoProducto);
+        this.actualCart.listaCarrito.push(nuevoProducto);
+        console.log('Create New Product', this.actualCart);
+        this.cartCollection.doc<Carrito>(this.cartId).update(JSON.parse(JSON.stringify(this.actualCart)));
     }
 
-    agregarAListaCarrito(item: Producto, tipo: string): Observable<Carrito> {
+    addToCart(item: Producto, tipo: string): Observable<Carrito> {
         const observable = Observable.create(observer => {
+            let found = false;
+            this.listaItemsCarrito = this.actualCart.listaCarrito;
             if (!this.listaItemsCarrito.length) {
                 this.createNewProduct(item);
             } else {
-                let found = false;
                 const operacion = tipo;
                 this.listaItemsCarrito.forEach((productoActual, index) => {
                     if (productoActual.id === item.id && !found) {
@@ -80,19 +109,18 @@ export class CartService {
                         this.recalcularPeso(productoActual, item);
                         productoActual.itemSubTotal = Number(productoActual.cantidad * productoActual.precio);
                         productoActual.itemTotal = Number((productoActual.itemSubTotal * 1.12));
-                        this.listaItemsCarrito[index] = productoActual;
+                        this.actualCart.listaCarrito[index] = productoActual;
                         found = true;
+                        this.cartCollection.doc<Carrito>(this.cartId).update(this.actualCart);
                     }
                 });
-
                 if (!found) {
                     this.createNewProduct(item);
                 }
             }
-
-            this.productosEnCarrito.listaCarrito = this.listaItemsCarrito;
+            this.actualCart.listaCarrito = this.listaItemsCarrito;
             this.recalcularTotales();
-            observer.next(this.productosEnCarrito);
+            observer.next(this.actualCart);
             observer.complete();
         });
         return observable;
@@ -100,8 +128,10 @@ export class CartService {
 
     eliminarDelCarrito(producto: Item): void {
         console.log(producto);
-        if (this.listaItemsCarrito.indexOf(producto) !== -1) {
-            this.listaItemsCarrito.splice(this.listaItemsCarrito.indexOf(producto), 1);
+        console.log(this.actualCart.listaCarrito);
+        if (this.actualCart.listaCarrito.indexOf(producto) !== -1) {
+            this.actualCart.listaCarrito.splice(this.listaItemsCarrito.indexOf(producto), 1);
+            this.cartCollection.doc<Carrito>(this.cartId).update(this.actualCart);
         } else {
             alert('Error al encontrar el producto');
         }
@@ -116,6 +146,7 @@ export class CartService {
 
     modificarItemCarrito(producto: Item, tipo: string): void {
         let matchProduct: Item = null;
+        this.listaItemsCarrito = this.actualCart.listaCarrito;
         this.listaItemsCarrito.map((item) => {
             if (item.id === producto.id) {
                 matchProduct = item;
@@ -125,7 +156,7 @@ export class CartService {
                             (productoActual.cantidad-- , item.stock++);
                         productoActual.itemSubTotal = Number(productoActual.cantidad * producto.precio);
                         productoActual.itemTotal = Number((producto.itemSubTotal * 1.12));
-                        this.listaItemsCarrito[index] = productoActual;
+                        this.actualCart.listaCarrito[index] = productoActual;
                     }
                 });
 
@@ -143,11 +174,12 @@ export class CartService {
         });
 
         this.recalcularTotales();
+        this.cartCollection.doc<Carrito>(this.cartId).update(this.actualCart);
     }
 
     calcularCatidad(): number {
         let cantidad = 0;
-        this.listaItemsCarrito.forEach(item => {
+        this.actualCart.listaCarrito.forEach(item => {
             cantidad += item.cantidad;
         });
         return cantidad;
@@ -155,7 +187,7 @@ export class CartService {
 
     calcularTotal(): number {
         let sum = 0;
-        this.listaItemsCarrito.forEach(itemDetail => {
+        this.actualCart.listaCarrito.forEach(itemDetail => {
             sum += Number(itemDetail.itemTotal);
         });
         return sum;
@@ -168,10 +200,9 @@ export class CartService {
                 this.redondear((productoActual.cantidad * Number(producto.peso)));
     }
     recalcularTotales() {
-        this.productosEnCarrito.contador = new Set(this.listaItemsCarrito).size;
-        this.productosEnCarrito.totalCarrito = this.calcularTotal();
-        this.productosEnCarrito.contadorTotal = this.calcularCatidad();
-        sessionStorage.setItem('cart', JSON.stringify(this.productosEnCarrito));
+        this.actualCart.contador = new Set(this.actualCart.listaCarrito).size;
+        this.actualCart.totalCarrito = this.calcularTotal();
+        this.actualCart.contadorTotal = this.calcularCatidad();
     }
 
     getCartData(): Observable<Carrito> {
@@ -181,14 +212,4 @@ export class CartService {
         });
         return observable;
     }
-
-    checkSessionCart(): Carrito {
-        if (sessionStorage.cart) {
-            //const listado: Carrito;
-            this.productosEnCarrito = JSON.parse(sessionStorage.cart);
-            return this.productosEnCarrito;
-        }
-    }
-
-}
-;
+};

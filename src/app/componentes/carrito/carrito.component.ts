@@ -16,27 +16,38 @@ export class CarritoComponent implements OnInit {
   @Input() productosTotales: number;
   @Input() totalCarrito: number;
   @Input() productosEnCarrito: Carrito;
+  contadorTotal: number;
+
+  carrito: Carrito;
+  productoCarrito: Item[] = [];
+
 
   constructor(private cartService: CartService, private authService: AuthService, private router: Router) {
 
   }
 
-  listaCarrito: Carrito;
-  productoCarrito: Item[] = [];
-
   ngOnInit() {
     this.authService.getUser();
-    this.getProductosEnCarrito();
+    this.getCart();
+  }
+
+  getCart() {
     this.contador = 0;
     this.cantidadProductosEnCarrito = 0;
     this.productosTotales = 0;
     this.totalCarrito = 0;
-  }
-
-  getProductosEnCarrito() {
-    const listaProducto = this.cartService.getListaCarrito();
-    listaProducto.subscribe(productos => {
-      this.listaCarrito = productos;
+    this.contadorTotal = 0;
+    const listado = this.cartService.getCartList();
+    listado.subscribe(listaProductos => {
+      const cart = listaProductos.filter(carrito => {
+        if (carrito.id === this.authService.getUser().uid) {
+          return carrito;
+        }
+      });
+      this.carrito = cart[0];
+      this.contador = cart[0].contador;
+      this.contadorTotal = cart[0].contadorTotal;
+      this.totalCarrito = cart[0].totalCarrito;
     });
   }
 
@@ -55,4 +66,5 @@ export class CarritoComponent implements OnInit {
   irACheckout() {
     this.router.navigate(['/checkout']);
   }
+  
 }
