@@ -13,7 +13,7 @@
             </div>
             <div class="row">
                 <div class="col-md-12 form-group">
-                    <mat-form-field>
+                    <mat-form-field class="col-12">
                         <input matInput placeholder="username"
                             formControlName="username" />
                     </mat-form-field>
@@ -21,7 +21,7 @@
             </div>
             <div class="row">
                 <div class="col-md-12 form-group">
-                    <mat-form-field>
+                    <mat-form-field class="col-12">
                         <input matInput type="password" placeholder="password"
                             formControlName="password" />
                     </mat-form-field>
@@ -33,6 +33,7 @@
                         [disabled]="loginForm.invalid">Enviar</button>
                 </div>
             </div>
+            <p class="text-center">admin@admin.com | password: admin1234</p>
         </form>
     </div>
 </div>

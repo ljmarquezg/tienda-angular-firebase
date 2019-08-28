@@ -21,7 +21,7 @@ export class LoginComponent implements OnInit {
     if (this.authService.isLoggedIn) {
       this.router.navigate(['shop']);
     }
-      
+
     this.loginForm = this.formBuilderService.group({
       username: ['', Validators.required],
       password: ['', Validators.required]
