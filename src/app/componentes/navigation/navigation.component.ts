@@ -12,6 +12,7 @@ export class NavigationComponent implements OnInit {
 
   constructor(private router: Router, private authService: AuthService, private cartService: CartService) { }
 
+  user: any;
   showLink: boolean;
 
   ngOnInit() {
