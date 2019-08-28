@@ -1,21 +1,13 @@
 <div class="container-fluid">
     <div class="row">
         <div class="col-3 d-md-flex bg-light pt-2 h-100">
-            <app-carrito
-                [contador]="contador"
-                [productosEnCarrito]="productosEnCarrito"
-                [productosTotales]="productosTotales"
-                [totalCarrito]="totalCarrito">
-            </app-carrito>
+            <app-carrito></app-carrito>
         </div>
         <div class="wrapper col-9 d-md-flex pt-2 h-100">
             <div class="d-flex flex-column col-12">
                 <app-navigation></app-navigation>
-                <app-producto class="row" (enviarACarritoEmit)="agregarACarrito($event,
-                    $event)"></app-producto>
+                <app-producto class="row" [listadoProductos]="listadoProductos"></app-producto>
             </div>
         </div>
     </div>
 </div>
-
-<!-- [productosEnCarrito]="productosEnCarrito" -->
