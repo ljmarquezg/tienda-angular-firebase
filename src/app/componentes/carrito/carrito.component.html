@@ -19,6 +19,7 @@
             Carrito Vacío
         </ng-template>
     </div>
+
     <div class="menu-top d-flex">
         <ng-container *ngIf="carrito !== undefined && carrito.listaCarrito !==
             undefined; else emptyCart">
@@ -28,9 +29,7 @@
                     carrito.listaCarrito">
                     <div class="d-flex">
                         <div class="col-3 p-0">
-                            <img src="assets/img/{{producto.nombre | lowercase
-                                }}.jpg"
-                                alt="{{producto.nombre}}">
+                            <img src="{{ producto.img | lowercase }}" alt="{{producto.nombre}}">
                             <div class="badge badge-dark col-12 text-center">
                                 {{producto.tipo}}</div>
                             <div class="d-flex">

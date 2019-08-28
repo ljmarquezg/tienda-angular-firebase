@@ -11,14 +11,14 @@ import { Router } from '@angular/router';
   styleUrls: ['./carrito.component.css']
 })
 export class CarritoComponent implements OnInit {
-  @Input() contador: number;
-  @Input() cantidadProductosEnCarrito: number;
-  @Input() productosTotales: number;
-  @Input() totalCarrito: number;
-  @Input() productosEnCarrito: Carrito;
-  contadorTotal: number;
 
+  contador: number;
   carrito: Carrito;
+  totalCarrito: number;
+  contadorTotal: number;
+  productosTotales: number;
+  productosEnCarrito: Carrito;
+  cantidadProductosEnCarrito: number;
   productoCarrito: Item[] = [];
 
 
@@ -27,6 +27,7 @@ export class CarritoComponent implements OnInit {
   }
 
   ngOnInit() {
+    this.getCart();
     this.authService.getUser();
     this.getCart();
   }
@@ -37,6 +38,7 @@ export class CarritoComponent implements OnInit {
     this.productosTotales = 0;
     this.totalCarrito = 0;
     this.contadorTotal = 0;
+    this.cartService.getCartCollection();
     const listado = this.cartService.getCartList();
     listado.subscribe(listaProductos => {
       const cart = listaProductos.filter(carrito => {
@@ -51,20 +53,16 @@ export class CarritoComponent implements OnInit {
     });
   }
 
-  eliminarProductoDelCarrito(producto: Item): void {
-    this.cartService.eliminarDelCarrito(producto);
+  eliminarProductoDelCarrito(item: Item): void {
+    this.cartService.eliminarDelCarrito(item);
   }
 
   modificarItemCarrito(item: Item, tipo: string) {
     this.cartService.modificarItemCarrito(item, tipo);
   }
 
-  logout() {
-    this.authService.logout();
-  }
-
   irACheckout() {
     this.router.navigate(['/checkout']);
   }
-  
+
 }

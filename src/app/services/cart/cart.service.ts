@@ -7,19 +7,20 @@ import { Producto } from 'src/app/modelos/Producto';
 import { Carrito } from 'src/app/modelos/Carrito';
 import { Item } from 'src/app/modelos/Items';
 import { Router } from '@angular/router';
+import { ProductoService } from '../producto/producto.service';
+import { match } from 'minimatch';
+import { Tipo } from 'src/app/modelos/tipo';
 
 
 @Injectable({
     providedIn: 'root'
 })
 export class CartService {
-    
+
     private cartCollection: AngularFirestoreCollection<Carrito>;
     private cart: Observable<Carrito[]>;
     private cartId: any;
     private actualCart: Carrito;
-
-
     // Productos
     listaProductos: Producto[] = [];
     // Carrito
@@ -34,10 +35,19 @@ export class CartService {
         status: 'active'
     }
 
-    constructor(private db: AngularFirestore, private authService: AuthService, private router: Router) {
-        if (this.authService.isLoggedIn) {
+    constructor(
+        private db: AngularFirestore,
+        private authService: AuthService,
+        private productService: ProductoService,
+        private router: Router
+    ) {
+        if (!this.authService.isLoggedIn) {
             this.router.navigate(['/']);
         }
+        this.getCartCollection();
+    }
+
+    getCartCollection(): void {
         this.cartCollection = this.db.collection<Carrito>('carrito');
         this.cart = this.cartCollection.snapshotChanges().pipe(
             map(items => {
@@ -58,12 +68,10 @@ export class CartService {
             })
         );
     }
-
     createCart() {
         if (this.actualCart === undefined || this.actualCart.status !== 'active') {
             this.newCart.id = this.authService.getUser().uid;
             this.cartCollection.add(this.newCart);
-            console.log('carrito creado:', this.cart);
         }
     }
     inicializarContador(): Carrito {
@@ -86,11 +94,9 @@ export class CartService {
     }
 
     createNewProduct(item: Producto) {
-        const nuevoProducto = new Item(item.id, item.nombre,
-            item.peso, item.tipo, Number(item.precio), (item.stock - 1), item.peso, 1, item.precio, 1);
+        const nuevoProducto = new Item(item.id, item.nombre, item.peso, item.tipo, Number(item.precio), (item.stock - 1), item.peso, 1, item.img, item.precio, 1);
         item.stock -= 1;
         this.actualCart.listaCarrito.push(nuevoProducto);
-        console.log('Create New Product', this.actualCart);
         this.cartCollection.doc<Carrito>(this.cartId).update(JSON.parse(JSON.stringify(this.actualCart)));
     }
 
@@ -111,6 +117,7 @@ export class CartService {
                         productoActual.itemTotal = Number((productoActual.itemSubTotal * 1.12));
                         this.actualCart.listaCarrito[index] = productoActual;
                         found = true;
+                        this.productService.productosCollection.doc<Producto>(item.id.toString()).update(item);
                         this.cartCollection.doc<Carrito>(this.cartId).update(this.actualCart);
                     }
                 });
@@ -126,30 +133,42 @@ export class CartService {
         return observable;
     }
 
-    eliminarDelCarrito(producto: Item): void {
-        console.log(producto);
-        console.log(this.actualCart.listaCarrito);
-        if (this.actualCart.listaCarrito.indexOf(producto) !== -1) {
-            this.actualCart.listaCarrito.splice(this.listaItemsCarrito.indexOf(producto), 1);
+    eliminarDelCarrito(item: Item): void {
+        const allProducts = this.productService.obtenerProductos().subscribe( producto => {
+            this.listaProductos = producto;
+        });
+    
+        if (this.actualCart.listaCarrito.indexOf(item) !== -1) {
+            this.actualCart.listaCarrito.splice(this.listaItemsCarrito.indexOf(item), 1);
             this.cartCollection.doc<Carrito>(this.cartId).update(this.actualCart);
         } else {
             alert('Error al encontrar el producto');
         }
-
+        console.log(this.listaProductos);
         this.listaProductos.map((productoActual, index) => {
-            if (producto.id === productoActual.id) {
-                this.listaProductos[index].stock += producto.cantidad;
+            if (item.id === productoActual.id) {
+                console.log(item.id);
+                this.listaProductos[index].stock += item.cantidad;
+                const matchProduct: Producto = {
+                    id: item.id,
+                    nombre: item.nombre,
+                    peso: item.peso,
+                    img: item.img,
+                    precio: item.precio,
+                    tipo: item.tipo,
+                    stock: this.listaProductos[index].stock += item.stock
+                };
+                console.log(matchProduct);
+                this.productService.productosCollection.doc<Producto>(matchProduct.id.toString()).update(matchProduct);
             }
         });
         this.recalcularTotales();
     }
 
     modificarItemCarrito(producto: Item, tipo: string): void {
-        let matchProduct: Item = null;
         this.listaItemsCarrito = this.actualCart.listaCarrito;
         this.listaItemsCarrito.map((item) => {
             if (item.id === producto.id) {
-                matchProduct = item;
                 this.listaItemsCarrito.forEach((productoActual, index) => {
                     if (productoActual.id === item.id) {
                         tipo === 'sumar' ? (productoActual.cantidad++ , item.stock--) :
@@ -163,6 +182,17 @@ export class CartService {
                 if (item.cantidad <= 0) {
                     this.eliminarDelCarrito(item);
                 }
+
+                const matchProduct: Producto = {
+                    id: item.id,
+                    nombre: item.nombre,
+                    peso: item.peso,
+                    img: item.img,
+                    precio: item.precio,
+                    tipo: item.tipo,
+                    stock: item.stock
+                };
+                this.productService.productosCollection.doc<Producto>(matchProduct.id.toString()).update(matchProduct);
             }
         });
 
