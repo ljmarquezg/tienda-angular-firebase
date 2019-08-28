@@ -1,15 +1,14 @@
 <app-navigation></app-navigation>
-<ng-container *ngIf="productosEnCarrito.listaCarrito.length> 0; else emptyCart">
+<ng-container *ngIf="carritoActual !== undefined && listaProductos.length > 0; else emptyCart">
     <ul>
         <li class="shadow list-group-item bg-light p-0"
             *ngFor="let producto of
-            productosEnCarrito.listaCarrito">
+            listaProductos">
             <div class="d-flex">
                 <div class="p-0" style="max-width: 150px;">
-                    <img style="max-width: 150px;" src="assets/img/{{producto.nombre
-                        | lowercase
-                        }}.jpg"
-                        alt="{{producto.nombre}}">
+                    <img style="max-width: 150px;"
+                        src="{{producto.img | lowercase}}"
+                        alt="{{ producto.nombre }}">
                     <div class="badge badge-dark col-12 text-center">
                         {{producto.tipo}}</div>
                     <div class="d-flex">
@@ -62,35 +61,23 @@
             </div>
         </li>
     </ul>
-    <div class="col-12">
-        <div class="list-group-item list-group-item-action bg-light">
-            <b>Items:</b> {{productosEnCarrito.contador}}
-        </div>
-        <div class="list-group-item list-group-item-action bg-light">
-            <b>Total Items:</b> {{productosEnCarrito.contadorTotal}}
-        </div>
-        <div class="list-group-item list-group-item-action bg-light">
-            <b>Total a pagar:</b> {{productosEnCarrito.totalCarrito | currency:
-            'EUR' }}
-        </div>
-    </div>
 </ng-container>
-
 <ng-template #emptyCart>
     <div class="text-center m-5">
         <h2>El Carrito está vacío</h2>
         <p><a class="btn btn-dark" routerLink="/shop">Ir a Tienda</a></p>
     </div>
-    <div class="col-12">
-        <div class="list-group-item list-group-item-action bg-light">
-            <b>Items:</b> 0
-        </div>
-        <div class="list-group-item list-group-item-action bg-light">
-            <b>Total Items:</b> 0
-        </div>
-        <div class="list-group-item list-group-item-action bg-light">
-            <b>Total a pagar:</b> {{0 | currency:
-            'EUR' }}
-        </div>
-    </div>
 </ng-template>
+
+<div class="col-12">
+    <div class="list-group-item list-group-item-action bg-light">
+        <b>Items:</b> {{contador}}
+    </div>
+    <div class="list-group-item list-group-item-action bg-light">
+        <b>Total Items:</b> {{contadorTotal}}
+    </div>
+    <div class="list-group-item list-group-item-action bg-light">
+        <b>Total a pagar:</b> {{totalCarrito | currency:
+        'EUR' }}
+    </div>
+</div>
