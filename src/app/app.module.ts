@@ -43,6 +43,7 @@ import { CheckoutComponent } from './componentes/checkout/checkout.component';
 import { NavigationComponent } from './componentes/navigation/navigation.component';
 import { AuthService } from './services/auth/auth.service';
 import { SpinnerComponent } from './componentes/common/spinner/spinner.component';
+import { ItemComponent } from './componentes/item/item.component';
 
 @NgModule({
   declarations: [
@@ -54,6 +55,7 @@ import { SpinnerComponent } from './componentes/common/spinner/spinner.component
     CheckoutComponent,
     NavigationComponent,
     SpinnerComponent,
+    ItemComponent,
   ],
   imports: [
     BrowserModule,
